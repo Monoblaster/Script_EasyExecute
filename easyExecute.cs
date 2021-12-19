@@ -20,7 +20,7 @@ function EXPath(%addonName)
 	}
 	else
 	{
-		$EX:Path = filePath(%path);
+		$EX::Path = filePath(%path);
 	}
 	return "";
 }
@@ -29,16 +29,16 @@ function EX(%name)
 {
 	%upper = strupr(%name);
 	%lower = strlwr(%name);
-	%file = findFirstFile($EX:Path @ "/*" @ %name @ ".cs");
+	%file = findFirstFile($EX::Path @ "/*" @ %name @ ".cs");
 
 	if(%file $= "")
 	{
-		%file = findFirstFile($EX:Path @ "/*" @ %upper @ ".cs");
+		%file = findFirstFile($EX::Path @ "/*" @ %upper @ ".cs");
 	}
 
 	if(%file $= "")
 	{
-		%file = findFirstFile($EX:Path @ "/*" @ %lower @ ".cs");
+		%file = findFirstFile($EX::Path @ "/*" @ %lower @ ".cs");
 	}
 
 	if(isFile(%file) && fileExt(%file) $= ".cs")
