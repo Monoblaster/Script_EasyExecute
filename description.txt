@@ -1,0 +1,7 @@
+Easy Execute by Monoblaster
+
+exPath("add-on name");
+i.e. exPath("Weapon_Gun"); or just exPath("Gun");
+
+ex("file name");
+i.e. ex("server");
