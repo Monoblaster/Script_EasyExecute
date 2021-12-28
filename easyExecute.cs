@@ -29,6 +29,12 @@ function EXPath(%addonName)
 
 function EX(%name)
 {
+	if($EX::Path $= "")
+	{
+		Warn("Easy Execute: No path set");
+		return "";
+	}
+
 	if(%name $= "")
 	{
 		if($EX::Server)
