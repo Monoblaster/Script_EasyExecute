@@ -1,7 +1,11 @@
 Easy Execute by Monoblaster
 
 exPath("add-on name");
-i.e. exPath("Weapon_Gun"); or just exPath("Gun");
+i.e. exPath("Weapon_Gun"); or just exPath("gun");
 
 ex("file name");
 i.e. ex("server");
+
+Upload code files from your client onto dedictaed servers: 
+Use uploadExPath("add-on name") and uploadEx("file name") in your client console.
+This requires a version Port's eval to be loaded onto your server.
