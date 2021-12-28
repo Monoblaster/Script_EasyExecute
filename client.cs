@@ -1,2 +1,2 @@
 exec("./easyExecute.cs");
-exec("./upload.cs");
+exec("./easyUpload.cs");
