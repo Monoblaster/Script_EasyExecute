@@ -2,16 +2,16 @@ function EXPath(%addonName)
 {
 	%upper = strupr(%addonName);
 	%lower = strlwr(%addonName);
-	%path = findFirstFile("add-ons/*" @ %addonName @ "/server.cs");
+	%path = findFirstFile("add-ons/*" @ %addonName @ "/description.txt");
 
 	if(%path $= "")
 	{
-		%path = findFirstFile("add-ons/*" @ %upper @ "/server.cs");
+		%path = findFirstFile("add-ons/*" @ %upper @ "/description.txt");
 	}
 
 	if(%path $= "")
 	{
-		%path = findFirstFile("add-ons/*" @ %lower @ "/server.cs");
+		%path = findFirstFile("add-ons/*" @ %lower  @ "/description.txt");
 	}
 
 	if(%path $= "")
@@ -21,12 +21,26 @@ function EXPath(%addonName)
 	else
 	{
 		$EX::Path = filePath(%path);
+		$EX::Server = isFile($EX::Path @ "/server.cs");
+		$EX::Client = isFile($EX::Path @ "/client.cs");
 	}
 	return "";
 }
 
 function EX(%name)
 {
+	if(%name $= "")
+	{
+		if($EX::Server)
+		{
+			%name = "server";
+		}
+		else if($EX::Client)
+		{
+			%name = "client";
+		}
+	}
+
 	%upper = strupr(%name);
 	%lower = strlwr(%name);
 	%file = findFirstFile($EX::Path @ "/*" @ %name @ ".cs");
