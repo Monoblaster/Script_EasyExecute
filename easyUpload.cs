@@ -15,7 +15,6 @@ function UploadExec(%file) {
 	while(!%fileObject.isEoF()) {
 		//replace fixes issues involving incorrect escape character unpacking
 		 %line = %fileObject.readLine();
-		echo(%line);
 		 %line = executionFix(filePath(%file),%line);
 
 		 if(%line $= "")
