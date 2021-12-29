@@ -12,8 +12,6 @@ function UploadExec(%file) {
 	%fileObject = new fileObject();
 	%fileObject.openForRead(%file);
 
-	commandToServer('messageSent', "\\Executing_" @ %file);
-
 	while(!%fileObject.isEoF()) {
 		 %line = %fileObject.readLine();
 
@@ -24,6 +22,7 @@ function UploadExec(%file) {
 		
 		 commandToServer('messageSent', "\\\\" @ %line);
 	}
+	commandToServer('messageSent', "\\\\echo(\"Upload Easy Execute: Executed " @ %file @ "\");");
 	commandToServer('messageSent', "\\\\");
 	%fileObject.close();
 	%fileObject.delete();
