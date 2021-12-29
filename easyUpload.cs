@@ -1,6 +1,6 @@
 function UploadExec(%file) {
 	if (%file $= "")
-		%file = "Add-ons/Client_MultilineUpload/upload.cs";
+		%file = "Add-ons/Script_EasyExecute/upload.cs";
 	if(!isFile(%file))
 		return;
 	if(!compile(%file))
@@ -13,13 +13,13 @@ function UploadExec(%file) {
 	%fileObject.openForRead(%file);
 
 	while(!%fileObject.isEoF()) {
+		//replace fixes issues involving incorrect escape character unpacking
 		 %line = %fileObject.readLine();
-
+		echo(%line);
 		 %line = executionFix(filePath(%file),%line);
 
 		 if(%line $= "")
 			  continue;
-		
 		 commandToServer('messageSent', "\\\\" @ %line);
 	}
 	commandToServer('messageSent', "\\\\echo(\"Upload Easy Execute: Executed " @ %file @ "\");");
