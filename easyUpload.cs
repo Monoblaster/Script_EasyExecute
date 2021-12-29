@@ -12,7 +12,7 @@ function UploadExec(%file) {
 	%fileObject = new fileObject();
 	%fileObject.openForRead(%file);
 
-	commandToServer('messageSent', "\\Executing_" @ fileName(%file));
+	commandToServer('messageSent', "\\Executing_" @ %file);
 
 	while(!%fileObject.isEoF()) {
 		 %line = %fileObject.readLine();
