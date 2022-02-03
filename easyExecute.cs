@@ -76,7 +76,7 @@ function EXComp(%name)
 
 function EXClip(%name)
 {
-	exec(getClipboard());
+	eval(getClipboard());
 				
 	return "";
 }
