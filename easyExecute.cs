@@ -74,13 +74,6 @@ function EXComp(%name)
 	return "";
 }
 
-function EXClip(%name)
-{
-	eval(getClipboard());
-				
-	return "";
-}
-
 function EX(%name)
 {
 	if($EX::Path $= "")
