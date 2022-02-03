@@ -27,6 +27,60 @@ function EXPath(%addonName)
 	return "";
 }
 
+function EXComp(%name)
+{
+	if($EX::Path $= "")
+	{
+		Warn("Easy Execute: No path set");
+		return "";
+	}
+
+	if(%name $= "")
+	{
+		if($EX::Server)
+		{
+			%name = "server";
+		}
+		else if($EX::Client)
+		{
+			%name = "client";
+		}
+	}
+
+	%upper = strupr(%name);
+	%lower = strlwr(%name);
+	%file = findFirstFile($EX::Path @ "/*" @ %name @ ".cs");
+
+	if(%file $= "")
+	{
+		%file = findFirstFile($EX::Path @ "/*" @ %upper @ ".cs");
+	}
+
+	if(%file $= "")
+	{
+		%file = findFirstFile($EX::Path @ "/*" @ %lower @ ".cs");
+	}
+
+	if(isFile(%file) && fileExt(%file) $= ".cs")
+		%success = compile(%file);
+
+		if(%success)
+		{
+			echo("Easy Execute: Compile successful" SPC %file);
+		}
+	else
+		Warn("Easy Execute: No file found name" SPC %name);
+		
+	return "";
+}
+
+function EXClip(%name)
+{
+	exec(getClipboard());
+				
+	return "";
+}
+
 function EX(%name)
 {
 	if($EX::Path $= "")
