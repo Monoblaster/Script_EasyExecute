@@ -1,6 +1,6 @@
 function UploadExec(%file) {
 	if (%file $= "")
-		%file = "Add-ons/Script_EasyExecute/upload.cs";
+		%file = "config/client/EasyExecute/uploadTemp.cs";
 	if(!isFile(%file))
 		return;
 	if(!compile(%file))
@@ -86,6 +86,23 @@ function UploadEXPath(%addonName)
 		$UploadEX::Client = isFile($UploadEX::Path @ "/client.cs");
 	}
 	return "";
+}
+
+function UploadExClip()
+{
+	%clipboard = getClipboard();
+	//write it to a file so we can use our functions
+	%out = new FileObject();
+	%success = %out.openForWrite("config/client/EasyExecute/uploadTemp.cs");
+	if(%success)
+	{	
+		%out.writeLine(%clipboard);
+	}
+	
+	%out.close();
+	%out.delete();
+
+	UploadExec("config/client/EasyExecute/uploadTemp.cs");
 }
 
 function UploadEX(%name)

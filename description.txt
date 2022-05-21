@@ -8,4 +8,4 @@ i.e. ex("server");
 
 Upload code files from your client onto dedictaed servers: 
 Use uploadExPath("add-on name") and uploadEx("file name") in your client console.
-This requires a version Port's eval to be loaded onto your server.
+This requires a version of Port's eval to be loaded onto your server.
