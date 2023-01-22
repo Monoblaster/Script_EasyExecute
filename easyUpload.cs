@@ -44,7 +44,9 @@ function executionFix(%filePath,%line)
 		//so we doin't catch the . in .cs
 		%checkFile = strReplace(%checkFile,"./",%filePath @ "/");
 
-		if((%endLine = strPos(%line,";",%closed)) == -1)
+		%endLine = strPos(%line,";",%closed);
+		%endFunc = strPos(%line,")",%closed);
+		if(%endLine < %endFunc || %endFunc == -1 || !isFile(%checkFile))
 		{
 			return %line;
 		}
