@@ -1,3 +1,64 @@
+function EasyExecute_CodeFile(%func,%base,%name,%ext)
+{
+	if(%base $= "")
+	{
+		Warn("Easy Execute: No path set");
+		return "";
+	}
+
+	if(%name $= "")
+	{
+		if($EX::Server)
+		{
+			%name = "/server";
+		}
+		else if($EX::Client)
+		{
+			%name = "/client";
+		}
+	}
+
+	if(%name $= "clip")
+	{
+		%clipboard = getClipboard();
+		//write it to a file so we can use our functions
+		%out = new FileObject();
+		%success = %out.openForWrite("config/client/EasyExecute/temp.cs");
+		if(%success && %clipboard !$= "")
+		{	
+			%out.writeLine(%clipboard);
+			%file = "config/client/EasyExecute/temp.cs";
+		}
+		%out.close();
+		%out.delete();
+	}
+
+	if(%file $= "")
+	{	
+		%upper = strupr(%name);
+		%lower = strlwr(%name);
+		%file = findFirstFile(%base @ "*" @ %name @ "." @ %ext);
+	}
+
+	if(%file $= "")
+	{
+		%file = findFirstFile(%base @ "*" @ %upper @ "." @ %ext);
+	}
+
+	if(%file $= "")
+	{
+		%file = findFirstFile(%base @ "*" @ %lower @ "." @ %ext);
+	}
+
+	if(!isFile(%file))
+	{
+		Warn("Easy Execute: No file found with name" SPC %name);
+		return false;
+	}
+
+	return call(%func,%file) TAB %file;
+}
+
 function EXPath(%addonName)
 {
 	%upper = strupr(%addonName);
@@ -27,162 +88,89 @@ function EXPath(%addonName)
 	return "";
 }
 
-function EXComp(%name)
-{
-	if($EX::Path $= "")
-	{
-		Warn("Easy Execute: No path set");
-		return "";
-	}
-
-	if(%name $= "")
-	{
-		if($EX::Server)
-		{
-			%name = "server";
-		}
-		else if($EX::Client)
-		{
-			%name = "client";
-		}
-	}
-
-	%upper = strupr(%name);
-	%lower = strlwr(%name);
-	%file = findFirstFile($EX::Path @ "/*" @ %name @ ".cs");
-
-	if(%file $= "")
-	{
-		%file = findFirstFile($EX::Path @ "/*" @ %upper @ ".cs");
-	}
-
-	if(%file $= "")
-	{
-		%file = findFirstFile($EX::Path @ "/*" @ %lower @ ".cs");
-	}
-
-	if(isFile(%file) && fileExt(%file) $= ".cs")
-		%success = compile(%file);
-
-		if(%success)
-		{
-			echo("Easy Execute: Compile successful" SPC %file);
-		}
-	else
-		Warn("Easy Execute: No file found name" SPC %name);
-		
-	return "";
-}
-
-function EXCComp(%name)
-{
-	%clipboard = getClipboard();
-	//write it to a file so we can use our functions
-	%out = new FileObject();
-	%success = %out.openForWrite("config/client/EasyExecute/uploadTemp.cs");
-	if(%success)
-	{	
-		%out.writeLine(%clipboard);
-	}
-	
-	%out.close();
-	%out.delete();
-
-	%success = compile("config/client/EasyExecute/uploadTemp.cs");
-
-	if(%success)
-	{
-		echo("Easy Execute: Compile successful" SPC %file);
-	}
-		
-	return "";
-}
-
-function EXC()
-{
-	eval(getClipboard());
-}
-
 function EX(%name)
 {
-	if($EX::Path $= "")
+	EasyExecute_CodeFile("exec",$EX::Path,%name,"cs");
+}
+
+function EXLua(%name)
+{
+	EasyExecute_CodeFile("luaexec",$EX::Path,%name,"lua");
+}
+
+function EXComp(%name)
+{
+	%result = EasyExecute_CodeFile("compile",$EX::Path,%name,"cs");
+	if(getField(%result,0))
 	{
-		Warn("Easy Execute: No path set");
-		return "";
+		echo("Easy Execute: Compile successful" SPC getField(%result,1));
 	}
-
-	if(%name $= "")
-	{
-		if($EX::Server)
-		{
-			%name = "server";
-		}
-		else if($EX::Client)
-		{
-			%name = "client";
-		}
-	}
-
-	%upper = strupr(%name);
-	%lower = strlwr(%name);
-	%file = findFirstFile($EX::Path @ "/*" @ %name @ ".cs");
-
-	if(%file $= "")
-	{
-		%file = findFirstFile($EX::Path @ "/*" @ %upper @ ".cs");
-	}
-
-	if(%file $= "")
-	{
-		%file = findFirstFile($EX::Path @ "/*" @ %lower @ ".cs");
-	}
-
-	if(isFile(%file) && fileExt(%file) $= ".cs")
-		exec(%file);
-	else
-		Warn("Easy Execute: No file found name" SPC %name);
 		
 	return "";
 }
 
-function EXL(%name)
+function UploadExec(%file) {
+	if(!isFile(%file))
+		return;
+	if(!compile(%file))
+	{
+		//exec(%file);	
+		return;
+	}
+
+	%fileObject = new fileObject();
+	%fileObject.openForRead(%file);
+
+	while(!%fileObject.isEoF()) {
+		//replace fixes issues involving incorrect escape character unpacking
+		 %line = %fileObject.readLine();
+		 %line = executionFix(filePath(%file),%line);
+
+		 if(%line $= "")
+			  continue;
+		 commandToServer('messageSent', "\\\\" @ %line);
+	}
+	commandToServer('messageSent', "\\\\echo(\"Upload Easy Execute: Executed " @ %file @ "\");");
+	commandToServer('messageSent', "\\\\");
+	%fileObject.close();
+	%fileObject.delete();
+}
+
+function executionFix(%filePath,%line)
 {
-	if($EX::Path $= "")
-	{
-		Warn("Easy Execute: No path set");
-		return "";
-	}
-
-	if(%name $= "")
-	{
-		if($EX::Server)
+	if((%start = strPos(%line,"exec(")) != -1)
+	{	
+		//4 for the offset
+		%open = %start + 5;
+		//do we have a closed parathesis?
+		if((%closed = strPos(%line,"\"",%open + 1)) == -1)
 		{
-			%name = "server";
+			return %line;
 		}
-		else if($EX::Client)
+
+		%checkFile = getSubStr(%line,%open + 1,%closed - %open - 1);
+
+		//so we doin't catch the . in .cs
+		%checkFile = strReplace(%checkFile,"./",%filePath @ "/");
+
+		%endLine = strPos(%line,";",%closed);
+		%endFunc = strPos(%line,")",%closed);
+		if(%endLine < %endFunc || %endFunc == -1 || !isFile(%checkFile))
 		{
-			%name = "client";
+			return %line;
 		}
+
+		%line = getSubStr(%line,0,%start) @ executionFix(%filePath,getSubStr(%line,%endLine + 1,strLen(%line) - %closed));
+
+		schedule(33,0,"UploadExec",%checkFile);
+
+		return %line;
 	}
 
-	%upper = strupr(%name);
-	%lower = strlwr(%name);
-	%file = findFirstFile($EX::Path @ "/*" @ %name @ ".lua");
+	return %line;
+}
 
-	if(%file $= "")
-	{
-		%file = findFirstFile($EX::Path @ "/*" @ %upper @ ".lua");
-	}
-
-	if(%file $= "")
-	{
-		%file = findFirstFile($EX::Path @ "/*" @ %lower @ ".lua");
-	}
-
-	if(isFile(%file) && fileExt(%file) $= ".lua")
-		luaexec(%file);
-	else
-		Warn("Easy Execute: No file found name" SPC %name);
-		
-	return "";
+function EXUp(%name)
+{
+	EasyExecute_CodeFile("UploadExec",$EX::Path,%name,"cs");
 }

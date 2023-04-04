@@ -1,11 +1,21 @@
 Easy Execute by Monoblaster
 
 exPath("add-on name");
-i.e. exPath("Weapon_Gun"); or just exPath("gun");
+Sets the base addon path for all other operations
 
+note: using clip for any of the file names will use your clipboard instead of a code file
 ex("file name");
-i.e. ex("server");
+executes the required file
+be more specific with it if it isn't getting you the right file
 
-Upload code files from your client onto dedictaed servers: 
-Use uploadExPath("add-on name") and uploadEx("file name") in your client console.
-This requires a version of Port's eval to be loaded onto your server.
+exLua("file name")
+same as ex but for lua files
+only works if you have redo's lua dll
+
+exComp("file name")
+compiles the required file
+be more specific with it if it isn't getting you the right file
+compiling doesn't load the script but runs syntax checks onto it
+
+exUp("file name")
+uploads a file to the server using port eval format
