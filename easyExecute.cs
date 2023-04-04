@@ -91,11 +91,13 @@ function EXPath(%addonName)
 function EX(%name)
 {
 	EasyExecute_CodeFile("exec",$EX::Path,%name,"cs");
+	return "";
 }
 
 function EXLua(%name)
 {
 	EasyExecute_CodeFile("luaexec",$EX::Path,%name,"lua");
+	return "";
 }
 
 function EXComp(%name)
@@ -105,7 +107,6 @@ function EXComp(%name)
 	{
 		echo("Easy Execute: Compile successful" SPC getField(%result,1));
 	}
-		
 	return "";
 }
 
@@ -173,4 +174,5 @@ function executionFix(%filePath,%line)
 function EXUp(%name)
 {
 	EasyExecute_CodeFile("UploadExec",$EX::Path,%name,"cs");
+	return "";
 }
