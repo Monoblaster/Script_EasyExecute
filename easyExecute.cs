@@ -1,6 +1,20 @@
 function EasyExecute_CodeFile(%func,%base,%name,%ext)
 {
-	if(%base $= "")
+	if(%name $= "clip")
+	{
+		%clipboard = getClipboard();
+		//write it to a file so we can use our functions
+		%out = new FileObject();
+		%success = %out.openForWrite("config/client/EasyExecute/temp.cs");
+		if(%success && %clipboard !$= "")
+		{	
+			%out.writeLine(%clipboard);
+			%file = "config/client/EasyExecute/temp.cs";
+		}
+		%out.close();
+		%out.delete();
+	}
+	else if(%base $= "")
 	{
 		Warn("Easy Execute: No path set");
 		return "";
@@ -16,21 +30,6 @@ function EasyExecute_CodeFile(%func,%base,%name,%ext)
 		{
 			%name = "/client";
 		}
-	}
-
-	if(%name $= "clip")
-	{
-		%clipboard = getClipboard();
-		//write it to a file so we can use our functions
-		%out = new FileObject();
-		%success = %out.openForWrite("config/client/EasyExecute/temp.cs");
-		if(%success && %clipboard !$= "")
-		{	
-			%out.writeLine(%clipboard);
-			%file = "config/client/EasyExecute/temp.cs";
-		}
-		%out.close();
-		%out.delete();
 	}
 
 	if(%file $= "")
@@ -63,16 +62,16 @@ function EXPath(%addonName)
 {
 	%upper = strupr(%addonName);
 	%lower = strlwr(%addonName);
-	%path = findFirstFile("add-ons/*" @ %addonName @ "/description.txt");
+	%path = findFirstFile("add-ons/" @ %addonName @ "*/description.txt");
 
 	if(%path $= "")
 	{
-		%path = findFirstFile("add-ons/*" @ %upper @ "/description.txt");
+		%path = findFirstFile("add-ons/" @ %upper @ "*/description.txt");
 	}
 
 	if(%path $= "")
 	{
-		%path = findFirstFile("add-ons/*" @ %lower  @ "/description.txt");
+		%path = findFirstFile("add-ons/" @ %lower  @ "*/description.txt");
 	}
 
 	if(%path $= "")
@@ -175,4 +174,17 @@ function EXUp(%name)
 {
 	EasyExecute_CodeFile("UploadExec",$EX::Path,%name,"cs");
 	return "";
+}
+
+function EXConsole()
+{
+	UploadExec("Add-ons/script_easyExecute/console.cs");
+	schedule(100,0,"CommandToServer",'ConsoleAddClient');
+}
+
+function clientcmdLoggerPushLine(%Line1,%line2,%line3,%line4,%line5)
+{
+    for(%I=1;%I<=5;%I++)
+        if(%line[%I] !$= "")
+            echo("LOG: "@ %line[%I]);
 }
