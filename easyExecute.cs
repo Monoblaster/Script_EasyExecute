@@ -62,16 +62,16 @@ function EXPath(%addonName)
 {
 	%upper = strupr(%addonName);
 	%lower = strlwr(%addonName);
-	%path = findFirstFile("add-ons/" @ %addonName @ "*/description.txt");
+	%path = findFirstFile("add-ons/" @ %addonName @ "/description.txt");
 
 	if(%path $= "")
 	{
-		%path = findFirstFile("add-ons/" @ %upper @ "*/description.txt");
+		%path = findFirstFile("add-ons/" @ %upper @ "/description.txt");
 	}
 
 	if(%path $= "")
 	{
-		%path = findFirstFile("add-ons/" @ %lower  @ "*/description.txt");
+		%path = findFirstFile("add-ons/" @ %lower  @ "/description.txt");
 	}
 
 	if(%path $= "")

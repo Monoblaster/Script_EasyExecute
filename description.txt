@@ -1,8 +1,7 @@
 Easy Execute by Monoblaster
 
-exPath("add-on name");
+exPath("full add-on name");
 Sets the base addon path for all other operations
-For short start with the beginning of the name
 
 note: using clip for any of the file names will use your clipboard instead of a code file
 ex("file name");
