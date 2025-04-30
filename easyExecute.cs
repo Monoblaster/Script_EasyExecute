@@ -92,7 +92,126 @@ function EX(%name)
 	return getField(EasyExecute_CodeFile("exec",$EX::Path,%name,"cs"),0);
 }
 
-function EXTest(%name)
+$EasyExecute::Number = "0123456789";
+$EasyExecute::Dash = "-";
+$EasyExecute::WhiteSpace = " \n\t";
+function EasyExecute_TestString(%teststr,%testcount)
+{
+	if(%teststr $= "")
+	{
+		%teststr = "-";
+	}
+
+	%teststrlen = trim(strLen(%teststr)); //tokenizer
+	%tokenType = "Whitespace";
+	%lastTokenType = "Whitespace";
+	for(%i = 0; %i < %teststrlen; %i++)
+	{
+		%char = getSubStr(%teststr,%i,1);
+		if(strPos($EasyExecute::WhiteSpace,%char) != -1)//is whitespace
+		{
+			%charType = "Whitespace";
+		}
+		else if(strPos($EasyExecute::Number,%char) != -1)//is a number
+		{
+			%charType = "Number";
+		}
+		else if(strPos($EasyExecute::Dash,%char) != -1)//is a dash
+		{
+			%charType = "Dash";
+		}
+		else // invalid char error
+		{
+			warn();
+			error("Character cannot be used" NL getSubStr(%teststr,0,%i-1)@"##"@getSubStr(%teststr,%i,1)@"##"@getSubStr(%teststr,%i+1,%teststrlen-%i));
+			return;
+		}
+
+		if(%tokenType !$= "Whitespace" && (// do we push the current token to the stack?
+			%charType $= "Whitespace"||
+			%tokenType !$= "Number" && %charType $= "Number"||
+			%charType $= "Dash"
+		))
+		{
+			%lastTokenType = %tokenType;
+			%tokenTypeStack = %tokenTypeStack SPC %tokenType;
+			%tokenStack = %tokenStack SPC %token;
+			%token = "";
+			%tokenType = "";
+		}
+
+		%tokenType = %charType;
+		if(
+			%charType $= "Whitespace"
+		)
+		{
+			
+			continue;
+		}
+		%token = %token @ %char;
+	}
+
+	if(%tokenType !$= "Whitespace")
+	{
+		%lastTokenType = %tokenType;
+		%tokenTypeStack = %tokenTypeStack SPC %tokenType;
+		%tokenStack = %tokenStack SPC %token;
+		%token = "";
+		%tokenType = ""; //push any remaining tokens
+	}
+	%tokenStack = 1 SPC lTrim(%tokenStack) SPC %testcount;
+	%tokenTypeStack = "Number" SPC lTrim(%tokenTypeStack) SPC "Number";
+	
+	%tokenCount = getWordCount(%tokenStack);
+	for(%i = 1; %i < %tokenCount-1; %i++) //lazy and i don't feel like doing a propper algorithm for this
+	{
+		%currToken = getWord(%tokenStack,%i);
+		%currTokenType = getWord(%tokenTypeStack,%i);
+		
+		if(%currTokenType $= "Dash")
+		{
+
+			if(getWord(%tokenTypeStack,%i-1) !$= "Number" || getWord(%tokenTypeStack,%i+1) !$= "Number")
+			{
+				Warn("Non number next to dash");
+				return "";
+			}
+
+			%a = getWord(%tokenStack,%i-1);
+			%b = getWord(%tokenStack,%i+1);
+			if(%a > %b)
+			{
+				Warn("The number left of dash must be smaller than the right");
+				return "";
+			}
+
+			if(%i == 1)
+			{
+				%a--;
+			}
+
+			if(%i == %tokenCount-2)
+			{
+				%b++;
+			}
+
+			for(%j = %a+1; %j < %b; %j++)
+			{
+				%testsToDo = %testsToDo SPC %j;
+			}
+		}
+
+		if(%currTokenType $= "Number")
+		{
+			%testsToDo = %testsToDo SPC getWord(%tokenStack,%i);
+		}
+	}
+
+	return lTrim(%testsToDo);
+}
+
+
+function EXTest(%name,%teststr)
 {
     %result = EasyExecute_CodeFile("exec",$EX::Path,%name,"cs");
 
@@ -110,14 +229,19 @@ function EXTest(%name)
 		return;
 	}
 
-    activatePackage(%packagename);
+	activatePackage(%packagename);
 
-	
-
-    %c = 1;
-    %testfunc = "Test"@%c;
-    while(isFunction(%testfunc))
+	%testCount = 0;
+    while(isFunction("Test"@(%testCount+1)))
     {
+		%testCount++;
+	}
+	
+	%testsToDo = EasyExecute_TestString(%teststr,%testcount);
+	%testCount = getWordCount(%testsToDo);
+	for(%i = 0; %i < %testCount; %i++)
+	{
+		%testFunc = "Test"@getWord(%testsToDo,%i);
 		%startId = new ScriptObject().getId(); //where to start to delete objects
         %result = call(%testfunc);
 		%endId = new ScriptObject().getId(); //where to finish deleting objects
@@ -127,13 +251,13 @@ function EXTest(%name)
 			return;
 		}
 
-		for(%i = %startId; %i <= %endId; %i++)
+		for(%j = %startId; %j <= %endId; %j++)
 		{
-			if(!isObject(%i))
+			if(!isObject(%j))
 			{
 				continue;
 			}
-			%i.delete();
+			%j.delete();
 		}
 
         if(!%result)
@@ -145,9 +269,7 @@ function EXTest(%name)
         {
             echo(%testfunc@": success");
         }
-        %c++;
-        %testfunc = "Test"@%c;
-    }
+	}
     %failures = ltrim(%failures);
 
     if(%failures !$= "")
