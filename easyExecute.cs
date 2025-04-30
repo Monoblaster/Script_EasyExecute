@@ -89,14 +89,57 @@ function EXPath(%addonName)
 
 function EX(%name)
 {
-	EasyExecute_CodeFile("exec",$EX::Path,%name,"cs");
-	return "";
+	return getField(EasyExecute_CodeFile("exec",$EX::Path,%name,"cs"),0);
+}
+
+function EXTest(%name)
+{
+    %result = EasyExecute_CodeFile("exec",$EX::Path,%name,"cs");
+
+	if(%result $= "")
+	{
+		return;
+	}
+
+	%file = getField(%result,1);
+
+    %packagename = fileBase(%file);
+    activatePackage(%packagename);
+
+    %c = 1;
+    %testfunc = "Test"@%c;
+    while(isFunction(%testfunc))
+    {
+        %result = call(%testfunc);
+        if(!%result)
+        {
+            warn(%testfunc@": failed");
+            %failures = %failures SPC %testfunc;
+        }
+        else
+        {
+            echo(%testfunc@": success");
+        }
+        %c++;
+        %testfunc = "Test"@%c;
+    }
+    %failures = ltrim(%failures);
+
+    if(%failures !$= "")
+    {
+        echo("Failed tests: "@ %failures);
+    }
+    else
+    {
+        echo("All test completed succesfully");
+    }
+
+    deactivatePackage(%packagename);
 }
 
 function EXLua(%name)
 {
-	EasyExecute_CodeFile("luaexec",$EX::Path,%name,"lua");
-	return "";
+	return getField(EasyExecute_CodeFile("luaexec",$EX::Path,%name,"lua"),0);
 }
 
 function EXComp(%name)
@@ -106,7 +149,7 @@ function EXComp(%name)
 	{
 		echo("Easy Execute: Compile successful" SPC getField(%result,1));
 	}
-	return "";
+	return getField(%result,0);
 }
 
 function UploadExec(%file) {
@@ -172,8 +215,7 @@ function executionFix(%filePath,%line)
 
 function EXUp(%name)
 {
-	EasyExecute_CodeFile("UploadExec",$EX::Path,%name,"cs");
-	return "";
+	return getField(EasyExecute_CodeFile("UploadExec",$EX::Path,%name,"cs"),0);
 }
 
 function EXConsole()
