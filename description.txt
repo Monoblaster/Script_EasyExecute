@@ -12,9 +12,10 @@ exLua("file name")
 same as ex but for lua files
 only works if you have redo's lua dll
 
-exTest("file name")
+exTest("file name","list of tests to do (default is - which does all tests)")
 runs a test script on a test file
 to see an example of the format for thes test file see testertest.cs
+the test list is a space seperated list of numbers. you can also use - between two numbers to make a range of tests
 
 exComp("file name")
 compiles the required file
