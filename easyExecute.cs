@@ -121,8 +121,7 @@ function EXTest(%name)
 		%startId = new ScriptObject().getId(); //where to start to delete objects
         %result = call(%testfunc);
 		%endId = new ScriptObject().getId(); //where to finish deleting objects
-
-		if(%startId < %endID) //sanity
+		if(%startId > %endID) //sanity
 		{
 			Warn("Easy Execute: Object ID tracking failed. Restarting game suggested");
 			return;
@@ -130,6 +129,10 @@ function EXTest(%name)
 
 		for(%i = %startId; %i <= %endId; %i++)
 		{
+			if(!isObject(%i))
+			{
+				continue;
+			}
 			%i.delete();
 		}
 
