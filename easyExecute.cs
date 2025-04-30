@@ -96,7 +96,7 @@ function EXTest(%name)
 {
     %result = EasyExecute_CodeFile("exec",$EX::Path,%name,"cs");
 
-	if(%result $= "")
+	if(!%result)
 	{
 		return;
 	}
@@ -112,11 +112,21 @@ function EXTest(%name)
 
     activatePackage(%packagename);
 
+	
+
     %c = 1;
     %testfunc = "Test"@%c;
     while(isFunction(%testfunc))
     {
+		%startId = new ScriptObject().getId(); //where to start to delete objects
         %result = call(%testfunc);
+		%endId = new ScriptObject().getId(); //where to finish deleting objects
+
+		for(%i = %startId; %i <= %endId; %i++)
+		{
+			%i.delete();
+		}
+
         if(!%result)
         {
             warn(%testfunc@": failed");
