@@ -104,6 +104,12 @@ function EXTest(%name)
 	%file = getField(%result,1);
 
     %packagename = fileBase(%file);
+	if(!isPackage(%packagename))
+	{
+		Warn("Easy Execute: No package with the same name as the file. Should be named" SPC %packagename);
+		return;
+	}
+
     activatePackage(%packagename);
 
     %c = 1;

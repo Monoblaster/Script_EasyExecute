@@ -12,6 +12,10 @@ exLua("file name")
 same as ex but for lua files
 only works if you have redo's lua dll
 
+exTest("file name")
+runs a test script on a test file
+to see an example of the format for thes test file see testertest.cs
+
 exComp("file name")
 compiles the required file
 be more specific with it if it isn't getting you the right file
