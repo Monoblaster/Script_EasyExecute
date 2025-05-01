@@ -210,13 +210,13 @@ function EasyExecute_TestString(%teststr,%testcount)
 	return lTrim(%testsToDo);
 }
 
-
+$EasyExecute::PackageStack = "";
 function EXTest(%name,%teststr)
 {
     %result = EasyExecute_CodeFile("compile",$EX::Path,%name,"cs");
 	if(!getField(%result,0))
 	{
-		return;
+		return false;
 	}
 	
 	EasyExecute_CodeFile("exec",$EX::Path,%name,"cs");
@@ -227,8 +227,16 @@ function EXTest(%name,%teststr)
 	if(!isPackage(%packagename))
 	{
 		Warn("Easy Execute: No package with the same name as the file. Should be named" SPC %packagename);
-		return;
+		return false;
 	}
+
+	echo("Easy Execute: Starting test " @ %packagename);
+	%packages = $EasyExecute::PackageStack;
+	%count = getWordCount(%packages);
+	for(%i = 0; %i < %count; %i++)
+	{
+		deactivatePackage(getWord(%packages,%i));
+	}	
 
 	activatePackage(%packagename);
 
@@ -237,7 +245,17 @@ function EXTest(%name,%teststr)
     {
 		%testCount++;
 	}
-	
+
+	deactivatePackage(%packagename);
+	$EasyExecute::PackageStack = lTrim($EasyExecute::PackageStack SPC %packagename);
+
+	%packages = $EasyExecute::PackageStack;
+	%count = getWordCount(%packages);
+	for(%i = 0; %i < %count; %i++)
+	{
+		activatePackage(getWord(%packages,%i));
+	}
+
 	%testsToDo = EasyExecute_TestString(%teststr,%testcount);
 	%testCount = getWordCount(%testsToDo);
 	for(%i = 0; %i < %testCount; %i++)
@@ -249,7 +267,7 @@ function EXTest(%name,%teststr)
 		if(%startId > %endID) //sanity
 		{
 			Warn("Easy Execute: Object ID tracking failed. Restarting game suggested");
-			return;
+			return false;
 		}
 
 		for(%j = %startId; %j <= %endId; %j++)
@@ -263,24 +281,26 @@ function EXTest(%name,%teststr)
 
         if(!%result)
         {
-            warn(%testfunc@": failed");
+            warn(%packagename SPC %testfunc@": failed");
             %failures = %failures SPC %testfunc;
         }
         else
         {
-            echo(%testfunc@": success");
+            warn(%packagename SPC %testfunc@": success");
         }
 	}
     %failures = ltrim(%failures);
 	deactivatePackage(%packagename);
 
+	$EasyExecute::PackageStack = removeWord($EasyExecute::PackageStack,getWordCount($EasyExecute::PackageStack)-1);
+
     if(%failures !$= "")
     {
-        echo("Failed tests: "@ %failures);
+        warn("Easy Execute: " @%packagename @ " failed  on "@ %failures);
 		return false;
     }
 
-    echo("All test completed succesfully");
+    warn("Easy Execute: " @ %packagename @ " was successful!");
 	return true;
 }
 

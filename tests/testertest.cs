@@ -4,15 +4,22 @@ package testertest // test functions must be inside of a package named the same 
     //they will be run in this order
     function Test1() // can suceed
     {
-        return true; //when a test suceeds return true
+        return true; //when a test suceeds return true otherwise return false
     }
 
-    function Test2() // can fail
+    function Test2() // tests can suceed
     {
-        return false; //when a test fails ruturn false
+        expath("Script_EasyExecute");
+        return exTest("sucesstest"); 
     }
 
-    function Test3() // created objects will be destroyed when the function ends
+    function Test3() // tests can fail
+    {
+        expath("Script_EasyExecute");
+        return !exTest("failuretest");
+    }
+
+    function Test4() // created objects will be destroyed when the function ends
     {
         $test = new ScriptObject();
         // %result = true;  
@@ -21,7 +28,7 @@ package testertest // test functions must be inside of a package named the same 
         return true;
     }
 
-    function Test4() // does our test object still exist?
+    function Test5() // does our test object still exist?
     {
         return !IsObject($test);
     }
