@@ -210,7 +210,24 @@ function EasyExecute_TestString(%teststr,%testcount)
 	return lTrim(%testsToDo);
 }
 
+function EasyExecute_AddTestOutput(%string)
+{
+	$EasyExecute::OutputLog = $EasyExecute::OutputLog NL %string;
+}
+
+function EasyExecute_EmptyTestOutput()
+{
+	%output = $EasyExecute::OutputLog;
+	%count = getRecordCount(%output);
+	for(%i = 0; %i < %count; %i++)
+	{
+		echo(getRecord(%output,%i));
+	}
+	$EasyExecute::OutputLog = "";
+}
+
 $EasyExecute::PackageStack = "";
+$EasyExecute::OutputLog = "";
 function EXTest(%name,%teststr)
 {
     %result = EasyExecute_CodeFile("compile",$EX::Path,%name,"cs");
@@ -230,7 +247,7 @@ function EXTest(%name,%teststr)
 		return false;
 	}
 
-	echo("Easy Execute: Starting test " @ %packagename);
+	EasyExecute_AddTestOutput("Easy Execute: Starting test \"" @ %packagename @"\"");
 	%packages = $EasyExecute::PackageStack;
 	%count = getWordCount(%packages);
 	for(%i = 0; %i < %count; %i++)
@@ -266,7 +283,7 @@ function EXTest(%name,%teststr)
 		%endId = new ScriptObject().getId(); //where to finish deleting objects
 		if(%startId > %endID) //sanity
 		{
-			Warn("Easy Execute: Object ID tracking failed. Restarting game suggested");
+			EasyExecute_AddTestOutput("Easy Execute: Object ID tracking failed. Restarting game suggested");
 			return false;
 		}
 
@@ -281,12 +298,12 @@ function EXTest(%name,%teststr)
 
         if(!%result)
         {
-            warn(%packagename SPC %testfunc@": failed");
+            EasyExecute_AddTestOutput(%packagename SPC %testfunc@": failed");
             %failures = %failures SPC %testfunc;
         }
         else
         {
-            warn(%packagename SPC %testfunc@": success");
+            EasyExecute_AddTestOutput(%packagename SPC %testfunc@": success");
         }
 	}
     %failures = ltrim(%failures);
@@ -296,11 +313,19 @@ function EXTest(%name,%teststr)
 
     if(%failures !$= "")
     {
-        warn("Easy Execute: " @%packagename @ " failed  on "@ %failures);
+        EasyExecute_AddTestOutput("Easy Execute: \"" @%packagename @ "\" failed  on "@ %failures @ "\n");
+		if($EasyExecute::PackageStack $= "")
+		{
+			EasyExecute_EmptyTestOutput();
+		}
 		return false;
     }
 
-    warn("Easy Execute: " @ %packagename @ " was successful!");
+    EasyExecute_AddTestOutput("Easy Execute: \"" @ %packagename @ "\" was successful!\n");
+	if($EasyExecute::PackageStack $= "")
+	{
+		EasyExecute_EmptyTestOutput();
+	}
 	return true;
 }
 

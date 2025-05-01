@@ -1,4 +1,4 @@
-package failuretest
+package failure
 {
     function Test1()
     {

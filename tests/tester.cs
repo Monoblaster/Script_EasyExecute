@@ -1,4 +1,4 @@
-package testertest // test functions must be inside of a package named the same as the file
+package tester // test functions must be inside of a package named the same as the file
 {
     //create test functions with a incrmemnting number
     //they will be run in this order
@@ -10,13 +10,13 @@ package testertest // test functions must be inside of a package named the same 
     function Test2() // tests can suceed
     {
         expath("Script_EasyExecute");
-        return exTest("sucesstest"); 
+        return exTest("sucess"); 
     }
 
     function Test3() // tests can fail
     {
         expath("Script_EasyExecute");
-        return !exTest("failuretest");
+        return !exTest("failure");
     }
 
     function Test4() // created objects will be destroyed when the function ends

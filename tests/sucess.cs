@@ -1,4 +1,4 @@
-package sucesstest
+package sucess
 {
     function Test1()
     {
