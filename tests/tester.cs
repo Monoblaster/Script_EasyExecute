@@ -1,6 +1,6 @@
 package tester // test functions must be inside of a package named the same as the file
 {
-    //create test functions with a incrmemnting number
+    //create test functions with a incremnting number starting at 1
     //they will be run in this order
     function Test1() // can suceed
     {
@@ -10,7 +10,7 @@ package tester // test functions must be inside of a package named the same as t
     function Test2() // tests can suceed
     {
         expath("Script_EasyExecute");
-        return exTest("sucess"); 
+        return exTest("success"); 
     }
 
     function Test3() // tests can fail

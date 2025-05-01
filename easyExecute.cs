@@ -210,9 +210,11 @@ function EasyExecute_TestString(%teststr,%testcount)
 	return lTrim(%testsToDo);
 }
 
-function EasyExecute_AddTestOutput(%string)
+$EasyExecute::Normal = 0;
+$EasyExecute::Error = 1;
+function EasyExecute_AddTestLine(%string,%type)
 {
-	$EasyExecute::OutputLog = $EasyExecute::OutputLog NL %string;
+	$EasyExecute::OutputLog = $EasyExecute::OutputLog NL %string TAB %type;
 }
 
 function EasyExecute_EmptyTestOutput()
@@ -221,7 +223,16 @@ function EasyExecute_EmptyTestOutput()
 	%count = getRecordCount(%output);
 	for(%i = 0; %i < %count; %i++)
 	{
-		echo(getRecord(%output,%i));
+		%record = getRecord(%output,%i);
+		%type = getField(%record,1);
+		if(%type == $EasyExecute::Normal)
+		{
+			echo(getField(%record,0));
+		}
+		else if(%type == $EasyExecute::Error)
+		{
+			warn(getField(%record,0));
+		}
 	}
 	$EasyExecute::OutputLog = "";
 }
@@ -247,7 +258,7 @@ function EXTest(%name,%teststr)
 		return false;
 	}
 
-	EasyExecute_AddTestOutput("Easy Execute: Starting test \"" @ %packagename @"\"");
+	EasyExecute_AddTestLine("Easy Execute: Starting test \"" @ %packagename @"\"",$EasyExecute::Normal);
 	%packages = $EasyExecute::PackageStack;
 	%count = getWordCount(%packages);
 	for(%i = 0; %i < %count; %i++)
@@ -283,7 +294,7 @@ function EXTest(%name,%teststr)
 		%endId = new ScriptObject().getId(); //where to finish deleting objects
 		if(%startId > %endID) //sanity
 		{
-			EasyExecute_AddTestOutput("Easy Execute: Object ID tracking failed. Restarting game suggested");
+			EasyExecute_AddTestLine("Easy Execute: Object ID tracking failed. Restarting game suggested",$EasyExecute::Error);
 			return false;
 		}
 
@@ -298,12 +309,12 @@ function EXTest(%name,%teststr)
 
         if(!%result)
         {
-            EasyExecute_AddTestOutput(%packagename SPC %testfunc@": failed");
+            EasyExecute_AddTestLine(%packagename SPC %testfunc@": failed",$EasyExecute::Error);
             %failures = %failures SPC %testfunc;
         }
         else
         {
-            EasyExecute_AddTestOutput(%packagename SPC %testfunc@": success");
+            EasyExecute_AddTestLine(%packagename SPC %testfunc@": success",$EasyExecute::Normal);
         }
 	}
     %failures = ltrim(%failures);
@@ -313,7 +324,8 @@ function EXTest(%name,%teststr)
 
     if(%failures !$= "")
     {
-        EasyExecute_AddTestOutput("Easy Execute: \"" @%packagename @ "\" failed  on "@ %failures @ "\n");
+        EasyExecute_AddTestLine("Easy Execute: \"" @%packagename @ "\" failed  on "@ %failures,$EasyExecute::Error);
+		EasyExecute_AddTestLine();
 		if($EasyExecute::PackageStack $= "")
 		{
 			EasyExecute_EmptyTestOutput();
@@ -321,7 +333,8 @@ function EXTest(%name,%teststr)
 		return false;
     }
 
-    EasyExecute_AddTestOutput("Easy Execute: \"" @ %packagename @ "\" was successful!\n");
+    EasyExecute_AddTestLine("Easy Execute: \"" @ %packagename @ "\" was successful!",$EasyExecute::Normal);
+	EasyExecute_AddTestLine();
 	if($EasyExecute::PackageStack $= "")
 	{
 		EasyExecute_EmptyTestOutput();
