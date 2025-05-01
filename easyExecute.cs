@@ -213,13 +213,14 @@ function EasyExecute_TestString(%teststr,%testcount)
 
 function EXTest(%name,%teststr)
 {
-    %result = EasyExecute_CodeFile("exec",$EX::Path,%name,"cs");
-
-	if(!%result)
+    %result = EasyExecute_CodeFile("compile",$EX::Path,%name,"cs");
+	if(!getField(%result,0))
 	{
 		return;
 	}
-
+	
+	EasyExecute_CodeFile("exec",$EX::Path,%name,"cs");
+	
 	%file = getField(%result,1);
 
     %packagename = fileBase(%file);
