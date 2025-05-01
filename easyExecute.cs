@@ -272,17 +272,16 @@ function EXTest(%name,%teststr)
         }
 	}
     %failures = ltrim(%failures);
+	deactivatePackage(%packagename);
 
     if(%failures !$= "")
     {
         echo("Failed tests: "@ %failures);
-    }
-    else
-    {
-        echo("All test completed succesfully");
+		return false;
     }
 
-    deactivatePackage(%packagename);
+    echo("All test completed succesfully");
+	return true;
 }
 
 function EXLua(%name)
