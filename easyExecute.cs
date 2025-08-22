@@ -34,22 +34,20 @@ function EasyExecute_CodeFile(%func,%base,%name,%ext)
 
 	if(%file $= "")
 	{	
-		%upper = strupr(%name);
-		%lower = strlwr(%name);
 		%file = findFirstFile(%base @ "*" @ %name @ "." @ %ext);
 	}
-
+	
 	if(%file $= "")
 	{
-		%file = findFirstFile(%base @ "*" @ %upper @ "." @ %ext);
+		%file = findFirstFile(%base @ "*" @ strupr(%name) @ "." @ %ext);
 	}
 
 	if(%file $= "")
 	{
-		%file = findFirstFile(%base @ "*" @ %lower @ "." @ %ext);
+		%file = findFirstFile(%base @ "*" @ strlwr(%name) @ "." @ %ext);
 	}
 
-	if(!isFile(%file))
+	if(%file $= ""))
 	{
 		Warn("Easy Execute: No file found with name" SPC %name);
 		return false;
