@@ -36,7 +36,7 @@ function EasyExecute_CodeFile(%func,%base,%name,%ext)
 	{	
 		%file = findFirstFile(%base @ "*" @ %name @ "." @ %ext);
 	}
-	
+
 	if(%file $= "")
 	{
 		%file = findFirstFile(%base @ "*" @ strupr(%name) @ "." @ %ext);
@@ -47,7 +47,7 @@ function EasyExecute_CodeFile(%func,%base,%name,%ext)
 		%file = findFirstFile(%base @ "*" @ strlwr(%name) @ "." @ %ext);
 	}
 
-	if(%file $= ""))
+	if(%file $= "")
 	{
 		Warn("Easy Execute: No file found with name" SPC %name);
 		return false;
