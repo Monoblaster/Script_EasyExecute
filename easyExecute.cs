@@ -81,8 +81,8 @@ function EXPath(%addonName)
 	else
 	{
 		$EX::Path = filePath(%path);
-		$EX::Server = isFile($EX::Path @ "/server.cs");
-		$EX::Client = isFile($EX::Path @ "/client.cs");
+		$EX::Server = findFirstFile($EX::Path @ "/server.cs") !$= "";
+		$EX::Client = findFirstFile($EX::Path @ "/client.cs") !$= "";
 	}
 	return "";
 }
